@@ -1,1 +1,40 @@
+class Solution {
+    static int numProvinces(ArrayList<ArrayList<Integer>> adj, int V) {
+        ArrayList<ArrayList<Integer>> adjLs = new ArrayList<ArrayList<Integer>>(); 
+        for(int i = 0;i<V;i++) {
+            adjLs.add(new ArrayList<Integer>()); 
+        }
+        
+        // to change adjacency matrix to list 
+        for(int i = 0;i<V;i++) {
+            for(int j = 0;j<V;j++) {
+                // self nodes are not considered 
+                if(adj.get(i).get(j) == 1 && i != j) {
+                    adjLs.get(i).add(j); 
+                    adjLs.get(j).add(i); 
+                }
+            }
+        }
+        
+        int count = 0;
+        boolean visited[] = new boolean[V];
+        
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) {
+                count++;
+                dfs(i, visited, adjLs);
+            }
+        }
+        return count;
+    }
+
+    static void dfs(int node, boolean visited[], ArrayList<ArrayList<Integer>> adj) {
+        visited[node] = true;
+        for (Integer it : adj.get(node)) { 
+            if (!visited[it]) {
+                dfs(it, visited, adj);
+            }
+        }
+    }
+}
 
