@@ -1,0 +1,62 @@
+import java.util.*;
+
+public class Solution {
+    public static ArrayList<Integer> topologicalSort(ArrayList<ArrayList<Integer>> adj, int V) {
+        int indegree[] = new int[V];
+        // Calculate indegree for each node
+        for (int i = 0; i < V; i++) {
+            for (int it : adj.get(i)) {
+                indegree[it]++;
+            }
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        // Add nodes with indegree 0 to the queue
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        ArrayList<Integer> topo = new ArrayList<>();
+        // Process each node in the queue
+        while (!q.isEmpty()) {
+            int node = q.poll();
+            topo.add(node);
+
+            // Reduce the indegree of adjacent nodes
+            for (int it : adj.get(node)) {
+                indegree[it]--;
+                if (indegree[it] == 0) {
+                    q.add(it);
+                }
+            }
+        }
+
+        // Return topological sort result
+        return topo;
+    }
+
+    public static void main(String[] args) {
+        // Create a sample graph for testing
+        int V = 6;
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+
+        for (int i = 0; i < V; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        // Adding edges
+        adj.get(2).add(1);
+        adj.get(1).add(0);
+        adj.get(3).add(2);
+        adj.get(0).add(1);
+        adj.get(0).add(2);
+
+        // Call topologicalSort and print result
+        ArrayList<Integer> topoSort = topologicalSort(adj, V);
+        for (int i : topoSort) {
+            System.out.println(i);
+        }
+    }
+}
