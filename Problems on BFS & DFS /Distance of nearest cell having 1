@@ -1,0 +1,56 @@
+
+class Solution
+{
+    
+    class Pair {
+        int first;
+        int second;
+        int third;
+        
+        Pair(int first, int second, int third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+    }
+    
+    public int[][] nearest(int[][] grid)
+    {
+        int n = grid.length;
+        int m = grid[0].length;
+        int visited[][] = new int[n][m];
+        int distance[][] = new int[n][m];
+        Queue<Pair> q = new LinkedList<>();
+        
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(grid[i][j] == 1) {
+                    q.add(new Pair(i, j, 0));
+                    visited[i][j] = 1;
+                } else {
+                    visited[i][j] = 0;
+                }
+            }
+        }
+        
+        int delRow[] = {-1, 0, +1, 0};
+        int delCol[] = {0, +1, 0, -1};
+        while(!q.isEmpty()) {
+            Pair p = q.poll();
+            int row = p.first;
+            int col = p.second;
+            int dist = p.third;
+            
+            distance[row][col] = dist;
+            for(int i = 0; i < 4; i++) {
+                int nRow = row + delRow[i];
+                int nCol = col + delCol[i];
+                if(nRow >= 0 && nRow < n && nCol >= 0 && nCol < m && visited[nRow][nCol] == 0) {
+                    visited[nRow][nCol] = 1;
+                    q.add(new Pair(nRow, nCol, dist + 1));
+                }
+            }
+        }
+        return distance;
+    }
+}
