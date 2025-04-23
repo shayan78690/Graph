@@ -1,0 +1,31 @@
+class Solution {
+    public boolean isBipartite(int[][] graph) {
+        int colors[] = new int[graph.length];
+        Arrays.fill(colors, -1); // set all to unvisited
+
+        for(int i = 0; i < graph.length; i++) {
+            if(colors[i] == -1) {
+                if(!dfs(i, 0, colors, graph)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean dfs(int node, int color, int[] colors, int[][] graph) {
+        colors[node] = color;
+
+        for(int neighbor : graph[node]) {
+            if(colors[neighbor] == -1) {
+                if(!dfs(neighbor, 1 - color, colors, graph)) {
+                    return false;
+                }
+            } else if(colors[neighbor] == colors[node]) {
+                return false; // conflict found
+            }
+        }
+
+        return true;
+    }
+}
