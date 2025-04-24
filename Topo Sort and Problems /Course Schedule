@@ -1,0 +1,44 @@
+class Solution {
+    public boolean isPossible(int N, int P, int[][] prerequisites) {
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        int indegree[] = new int[N];
+
+        // Fix: Loop through P, not N
+        for (int i = 0; i < P; i++) {
+            int u = prerequisites[i][0];
+            int v = prerequisites[i][1];
+            adj.get(u).add(v); // u -> v
+        }
+
+        for (int i = 0; i < N; i++) {
+            for (int it : adj.get(i)) {
+                indegree[it]++;
+            }
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < N; i++) {
+            if (indegree[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        int count = 0;
+        while (!q.isEmpty()) {
+            int node = q.poll();
+            count++;
+            for (int it : adj.get(node)) {
+                indegree[it]--;
+                if (indegree[it] == 0) {
+                    q.add(it);
+                }
+            }
+        }
+
+        return count == N;
+    }
+}
