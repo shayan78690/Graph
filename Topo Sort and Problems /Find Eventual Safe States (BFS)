@@ -1,0 +1,98 @@
+class Solution {
+    public List<Integer> eventualSafeNodes(int[][] graph) {
+        int n = graph.length;
+        
+        // Step 1: Reverse the graph
+        ArrayList<ArrayList<Integer>> revGraph = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            revGraph.add(new ArrayList<>());
+        }
+
+        int[] indegree = new int[n];
+
+        // Step 2: Build reversed graph and compute in-degrees
+        for (int u = 0; u < n; u++) {
+            for (int v : graph[u]) {
+                revGraph.get(v).add(u); // reverse the edge
+                indegree[u]++;
+            }
+        }
+
+        // Step 3: Start with nodes having 0 indegree (i.e. terminal nodes in original graph)
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < n; i++) {
+            if (indegree[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        // Step 4: Perform BFS (Kahn's Algo)
+        List<Integer> safe = new ArrayList<>();
+        while (!q.isEmpty()) {
+            int node = q.poll();
+            safe.add(node);
+            for (int nei : revGraph.get(node)) {
+                indegree[nei]--;
+                if (indegree[nei] == 0) {
+                    q.add(nei);
+                }
+            }
+        }
+
+        // Step 5: Sort the result
+        Collections.sort(safe);
+        return safe;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+class Solution {
+
+    public boolean dfs(int start, int visited[], int pathVisited[], int adj[][], int check[]) {
+        visited[start] = 1;
+        pathVisited[start] = 1;
+        check[start] = 0;
+
+        for (int it : adj[start]) {
+            if (visited[it] == 0) {
+                if (dfs(it, visited, pathVisited, adj, check)) {
+                    return true;
+                }
+            } else if (pathVisited[it] == 1) {
+                return true;
+            }
+        }
+        check[start] = 1;
+        pathVisited[start] = 0;
+        return false;
+    }
+
+    public List<Integer> eventualSafeNodes(int[][] graph) {
+        int V = graph.length;
+        int visited[] = new int[V];
+        int pathVisited[] = new int[V];
+        int check[] = new int[V];
+
+        for (int i = 0; i < V; i++) {
+            if (visited[i] == 0) {
+                dfs(i, visited, pathVisited, graph, check);
+            }
+        }
+
+        List<Integer> safeNodes = new ArrayList<>();
+        for (int i = 0; i < V; i++) {
+            if (check[i] == 1) {
+                safeNodes.add(i);
+            }
+        }
+        return safeNodes;
+    }
+}
