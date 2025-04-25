@@ -1,0 +1,48 @@
+class Solution {
+    
+    class Pair {
+        String first;
+        int second;
+        
+        Pair(String first, int second) {
+            this.first = first;
+            this.second = second;
+        }
+    }
+    
+    public int wordLadderLength(String startWord, String targetWord,
+                                String[] wordList) {
+        int n = wordList.length;
+        Set<String> set = new HashSet<>();
+        for(int i = 0; i < n; i++) {
+            set.add(wordList[i]);
+        }
+        
+        Queue<Pair> q = new LinkedList<>();
+        q.add(new Pair(startWord, 1));
+        set.remove(startWord);
+        while(!q.isEmpty()) {
+            Pair p = q.poll();
+            String word = p.first;
+            int steps = p.second;
+            
+            if(word.equals(targetWord)) {
+                return steps;
+            }
+            
+            for(int i = 0; i < word.length(); i++) {
+                for(char ch = 'a'; ch <= 'z'; ch++) {
+                    char replacedArray[] = word.toCharArray();
+                    replacedArray[i] = ch;
+                    String replacedWord = new String(replacedArray);
+                    
+                    if(set.contains(replacedWord)) {
+                        set.remove(replacedWord);
+                        q.add(new Pair(replacedWord, steps+1));
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+}
