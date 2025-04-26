@@ -1,0 +1,97 @@
+class Solution {
+    
+    // Helper class to represent a pair of (distance, node)
+    class Pair implements Comparable<Pair> {
+        int distance;
+        int node;
+        
+        Pair(int distance, int node) {
+            this.distance = distance;
+            this.node = node;
+        }
+        
+        // To prioritize nodes with shorter distances
+        public int compareTo(Pair that) {
+            return this.distance - that.distance;
+        }
+    }
+
+    public List<Integer> shortestPath(int n, int m, int edges[][]) {
+        // Step 1: Adjacency list for graph representation
+        ArrayList<ArrayList<Pair>> adj = new ArrayList<>();
+        for(int i = 0; i <= n; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        // Step 2: Building the graph
+        for(int i = 0; i < m; i++) {
+            int u = edges[i][0];
+            int v = edges[i][1];
+            int w = edges[i][2];
+            
+            adj.get(u).add(new Pair(w, v));
+            adj.get(v).add(new Pair(w, u));
+        }
+        
+        // Step 3: Dijkstra's initialization
+        int distance[] = new int[n+1];
+        int parent[] = new int[n+1];
+        
+        // Initializing distance and parent
+        Arrays.fill(distance, Integer.MAX_VALUE);
+        Arrays.fill(parent, -1);
+        distance[1] = 0;  // Distance to the source node is 0
+        
+        // Min-Heap priority queue for Dijkstra's algorithm
+        PriorityQueue<Pair> pq = new PriorityQueue<>();
+        pq.add(new Pair(0, 1));  // Add source node with distance 0
+        
+        // Step 4: Dijkstra's algorithm
+        while(!pq.isEmpty()) {
+            Pair p = pq.poll();
+            int currentDistance = p.distance;
+            int node = p.node;
+
+            // Skip if we have already found a shorter path
+            // if(currentDistance > distance[node]) {
+            //     continue;
+            // }
+
+            // Explore the neighbors of the current node
+            for(Pair neighbour : adj.get(node)) {
+                int weight = neighbour.distance;
+                int adjNode = neighbour.node;
+
+                // Relax the edge if a shorter path is found
+                if(currentDistance + weight < distance[adjNode]) {
+                    distance[adjNode] = currentDistance + weight;
+                    parent[adjNode] = node;
+                    pq.add(new Pair(distance[adjNode], adjNode));
+                }
+            }
+        }
+
+        // Step 5: Path reconstruction and answer
+        List<Integer> ans = new ArrayList<>();
+        
+        if(distance[n] == Integer.MAX_VALUE) {
+            ans.add(-1);  // No path found
+            return ans;
+        }
+        
+        // Reconstruct the path from destination to source
+        int node = n;
+        while(node != -1) {
+            ans.add(node);
+            node = parent[node];
+        }
+        // Reverse to get path from source to destination
+        Collections.reverse(ans);
+
+        // Add the total weight at the start of the list
+        ans.add(0, distance[n]);
+
+        return ans;
+    }
+
+}
