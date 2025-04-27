@@ -1,0 +1,73 @@
+/*************************************
+
+Following is the Point Class structure
+
+class Point {
+	int x;
+	int y;
+
+	Point(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
+**************************************/
+import java.util.*;
+
+public class Solution {
+
+	static class Tuple {
+		int first;
+		int second;
+		int third;
+
+		Tuple(int first, int second, int third) {
+			this.first = first;
+			this.second = second;
+			this.third = third;
+		}
+	}
+
+	public static int shortestPathBinaryMatrix(int[][] matrix, Point src, Point dest) {
+		int n = matrix.length;
+		int m = matrix[0].length;
+		int distance[][] = new int[n][m];
+		if (matrix[src.x][src.y] == 0 || matrix[dest.x][dest.y] == 0) {
+            return -1;
+        }
+
+		// If source and destination are the same
+		if (src.x == dest.x && src.y == dest.y) {
+			return 0;
+		}
+		for(int i = 0; i < n; i++) {
+			for(int j = 0; j < m; j++) {
+				distance[i][j] = (int)(1e9);
+			}
+		}
+		distance[src.x][src.y] = 0;
+		Queue<Tuple> q = new LinkedList<>();
+		q.add(new Tuple(0, src.x, src.y));
+
+        int delRow[] = {0, -1, 0, +1};
+		int delCol[] = {-1, 0, +1, 0};
+		while(!q.isEmpty()) {
+			Tuple t = q.poll();
+			int d = t.first;
+			int r = t.second;
+			int c = t.third;
+
+			for(int i = 0; i < 4; i++) {
+				int nRow = r + delRow[i];
+				int nCol = c + delCol[i];
+
+				if(nRow >= 0 && nRow < n && nCol >= 0 && nCol < m && matrix[nRow][nCol] == 1 && d + 1 < distance[nRow][nCol]) {
+					distance[nRow][nCol] = d + 1;
+					q.add(new Tuple(d+1, nRow, nCol));
+				}
+			}
+		}
+		return distance[dest.x][dest.y] == (int)(1e9) ? -1 : distance[dest.x][dest.y];
+	}
+}
