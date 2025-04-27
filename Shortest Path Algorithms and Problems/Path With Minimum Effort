@@ -1,0 +1,59 @@
+class Solution {
+
+    class Tuple implements Comparable<Tuple> {
+        int first;
+        int second;
+        int third;
+
+        Tuple(int first, int second, int third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+
+        public int compareTo(Tuple that) {
+            return this.first - that.first;
+        }
+    }
+
+    public int minimumEffortPath(int[][] height) {
+        int n = height.length;
+        int m = height[0].length;
+        int distance[][] = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                distance[i][j] = (int) (1e9);
+            }
+        }
+        distance[0][0] = 0;
+        int delRow[] = { 0, -1, 0, +1 };
+        int delCol[] = { -1, 0, +1, 0 };
+        PriorityQueue<Tuple> pq = new PriorityQueue<>();
+        pq.offer(new Tuple(0, 0, 0));
+        while (!pq.isEmpty()) {
+            Tuple t = pq.poll();
+            int diff = t.first;
+            int row = t.second;
+            int col = t.third;
+
+            if (row == n - 1 && col == m - 1) {
+                return diff;
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int nRow = delRow[i] + row;
+                int nCol = delCol[i] + col;
+
+                if (nRow >= 0 && nRow < n && nCol >= 0 && nCol < m) {
+                    int maxDiff = Math.max(diff, Math.abs(height[nRow][nCol] - height[row][col]));
+
+                    if (maxDiff < distance[nRow][nCol]) {
+                        distance[nRow][nCol] = maxDiff;
+                        pq.offer(new Tuple(distance[nRow][nCol], nRow, nCol));
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+}
