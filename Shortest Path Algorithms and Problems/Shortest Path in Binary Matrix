@@ -1,0 +1,51 @@
+class Solution {
+
+    class Tuple {
+        int first;
+        int second;
+        int third;
+
+        Tuple(int first, int second, int third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+    }
+
+    public int shortestPathBinaryMatrix(int[][] grid) {
+        int n = grid.length;
+        if(grid[0][0] == 1 || grid[n-1][n-1] == 1) {
+    return -1;
+}
+
+
+        int distance[][] = new int[n][n];
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                distance[i][j] = (int)(1e9);
+            }
+        }
+        distance[0][0] = 1;
+        Queue<Tuple> q = new LinkedList<>();
+        q.add(new Tuple(1, 0,0));
+
+        int delRow[] = {0, -1, -1, -1, 0, +1, +1, +1};
+        int delCol[] = {-1, -1, 0, +1, +1, +1, 0, -1};
+        while(!q.isEmpty()) {
+            Tuple t = q.poll();
+            int d = t.first;
+            int r = t.second;
+            int c = t.third;
+
+            for(int i = 0; i < 8; i++) {
+                int nRow = delRow[i] + r;
+                int nCol = delCol[i] + c;
+                if(nRow >= 0 && nRow < n && nCol >= 0 && nCol < n && grid[nRow][nCol] == 0 && d + 1 < distance[nRow][nCol]) {
+                    distance[nRow][nCol] = 1 + d;
+                    q.add(new Tuple(d+1, nRow, nCol));
+                }
+            }
+        }
+        return distance[n-1][n-1] == (int)(1e9) ? -1 : distance[n-1][n-1];
+    }
+}
