@@ -1,0 +1,41 @@
+class Solution {
+    static class Pair implements Comparable<Pair> {
+        int first;
+        int second;
+        Pair(int first, int second) {
+            this.first = first;
+            this.second = second;
+        }
+        
+        public int compareTo(Pair that) {
+            return this.first - that.first;
+        }
+    }
+    static int spanningTree(int V, int E, List<List<int[]>> adj) {
+        PriorityQueue<Pair> pq = new PriorityQueue<>();
+        pq.add(new Pair(0, 0));
+        int sum = 0;
+        
+        int visited[] = new int[V];
+        while(!pq.isEmpty()) {
+            Pair p = pq.poll();
+            int weight = p.first;
+            int node = p.second;
+            
+            if(visited[node] == 1) {
+                continue;
+            }
+            visited[node] = 1;
+            sum += weight;
+            
+            for(int neighbour[] : adj.get(node)) {
+                int adjNode = neighbour[0];
+                int adjWeight = neighbour[1];
+                if(visited[adjNode] == 0) {
+                    pq.add(new Pair(adjWeight, adjNode));
+                }
+            }
+        }
+        return sum;
+    }
+}
