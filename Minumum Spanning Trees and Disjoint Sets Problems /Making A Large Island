@@ -1,0 +1,118 @@
+class DisjointSet {
+    int[] rank;
+    int[] parent;
+    int[] size;  // size array for union by size
+
+    public DisjointSet(int n) {
+        rank = new int[n + 1];
+        parent = new int[n + 1];
+        size = new int[n + 1];  // initialize size array
+
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+            size[i] = 1;  // each node is its own set initially
+        }
+    }
+
+    public int findUltimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+        return parent[node] = findUltimateParent(parent[node]);  // path compression
+    }
+
+    public void unionByRank(int u, int v) {
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+
+        if (ulp_u == ulp_v) return;
+
+        if (rank[ulp_u] < rank[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+        } else if (rank[ulp_v] < rank[ulp_u]) {
+            parent[ulp_v] = ulp_u;
+        } else {
+            parent[ulp_v] = ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+
+    public void unionBySize(int u, int v) {
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+
+        if (ulp_u == ulp_v) return;
+
+        if (size[ulp_u] < size[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+            size[ulp_v] += size[ulp_u];
+        } else {
+            parent[ulp_v] = ulp_u;
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+}
+
+
+
+class Solution {
+    public int largestIsland(int[][] grid) {
+        int n = grid.length;
+        DisjointSet ds = new DisjointSet(n*n);
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(grid[i][j] == 0) {
+                    continue;
+                }
+                int delRow[] = {0, -1, 0, +1};
+                int delCol[] = {-1, 0, +1, 0};
+                for(int k = 0; k < 4; k++) {
+                    int adjRow = delRow[k] + i;
+                    int adjCol = delCol[k] + j;
+                    if(adjRow >= 0 && adjRow < n && adjCol >= 0 && adjCol < n) {
+                        if(grid[adjRow][adjCol] == 1) {
+                            int node = i * n + j;
+                            int adjNode = adjRow * n + adjCol;
+                            ds.unionBySize(node, adjNode);
+                        }
+                    }
+                }
+            }
+        }
+        
+        int max = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(grid[i][j] == 1) {
+                    continue;
+                }
+                HashSet<Integer> set  = new HashSet<>();
+                int delRow[] = {0, -1, 0, +1};
+                int delCol[] = {-1, 0, +1, 0};
+                for(int k = 0; k < 4; k++) {
+                    int adjRow = delRow[k] + i;
+                    int adjCol = delCol[k] + j;
+                    if(adjRow >= 0 && adjRow < n && adjCol >= 0 && adjCol < n) {
+                        if(grid[adjRow][adjCol] == 1) {
+                            int node = adjRow * n + adjCol;
+                            int parent = ds.findUltimateParent(node);
+                            set.add(parent);
+                        }
+                    }
+                }
+                
+                int totalSize = 0;
+                for(Integer p : set) {
+                    totalSize += ds.size[p];
+                }
+                max = Math.max(totalSize+1, max);
+            }
+        }
+        
+        for(int cellNo = 0; cellNo < n*n; cellNo++){
+            max = Math.max(max, ds.size[ds.findUltimateParent(cellNo)]);
+        }
+        return max;
+    }
+}
