@@ -96,3 +96,97 @@ class Solution {
         return ans;
     }
 }
+
+
+
+
+
+
+
+
+
+
+import java.util.*;
+
+class DisjointSet {
+    int[] rank;
+    int[] parent;
+    int[] size;  // size array for union by size
+
+    public DisjointSet(int n) {
+        rank = new int[n + 1];
+        parent = new int[n + 1];
+        size = new int[n + 1];  // initialize size array
+
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+            size[i] = 1;  // each node is its own set initially
+        }
+    }
+
+    public int findUltimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+        return parent[node] = findUltimateParent(parent[node]);  // path compression
+    }
+
+    public void unionByRank(int u, int v) {
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+
+        if (ulp_u == ulp_v) return;
+
+        if (rank[ulp_u] < rank[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+        } else if (rank[ulp_v] < rank[ulp_u]) {
+            parent[ulp_v] = ulp_u;
+        } else {
+            parent[ulp_v] = ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+}
+
+public class Solution {
+    public static int[] numOfIslandsII(int n, int m, int[][] q) {
+        int len = q.length;
+        int ans[] = new int[len];
+        DisjointSet ds = new DisjointSet(n*m);
+        int visited[][] = new int[n][m];
+        int count = 0;
+        int j = 0;
+        for(int i = 0; i < len; i++) {
+            int row = q[i][0];
+            int col = q[i][1];
+
+            if(visited[row][col] == 1) {
+                ans[j++] = count;
+                continue;
+            }
+            visited[row][col] = 1;
+            count++;
+
+            int delRow[] = {0, -1, 0, +1};
+            int delCol[] = {-1, 0, +1, 0};
+            for(int k = 0; k < 4; k++) {
+                int adjRow = delRow[k] + row;
+                int adjCol = delCol[k] + col;
+
+                if(adjRow >= 0 && adjRow < n && adjCol >= 0 && adjCol < m) {
+                    if(visited[adjRow][adjCol] == 1) {
+                        int node = row * m + col;
+                        int adjNode = adjRow * m + adjCol;
+                        if(ds.findUltimateParent(adjNode) != ds.findUltimateParent(node)) {
+                          count--;
+                          ds.unionByRank(node, adjNode);
+                        } 
+                    }
+                }
+            }
+            ans[j++] = count;
+        }
+        return ans;
+    }
+}
