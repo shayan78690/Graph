@@ -1,0 +1,100 @@
+class DisjointSet {
+    int[] rank;
+    int[] parent;
+    int[] size;  // size array for union by size
+
+    public DisjointSet(int n) {
+        rank = new int[n + 1];
+        parent = new int[n + 1];
+        size = new int[n + 1];  // initialize size array
+
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+            size[i] = 1;  // each node is its own set initially
+        }
+    }
+
+    public int findUltimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+        return parent[node] = findUltimateParent(parent[node]);  // path compression
+    }
+
+    public void unionByRank(int u, int v) {
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+
+        if (ulp_u == ulp_v) return;
+
+        if (rank[ulp_u] < rank[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+        } else if (rank[ulp_v] < rank[ulp_u]) {
+            parent[ulp_v] = ulp_u;
+        } else {
+            parent[ulp_v] = ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+
+    public void unionBySize(int u, int v) {
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+
+        if (ulp_u == ulp_v) return;
+
+        if (size[ulp_u] < size[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+            size[ulp_v] += size[ulp_u];
+        } else {
+            parent[ulp_v] = ulp_u;
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+}
+
+class Solution {
+    static ArrayList<ArrayList<String>> accountsMerge(
+        ArrayList<ArrayList<String>> details) {
+        int n = details.size();
+        DisjointSet ds = new DisjointSet(n);
+        HashMap<String, Integer> map = new HashMap<>();
+        for(int i = 0; i < n; i++) {
+            for(int j = 1; j < details.get(i).size(); j++) {
+                if(!map.containsKey(details.get(i).get(j))) {
+                    map.put(details.get(i).get(j), i);
+                } else {
+                    ds.unionByRank(i, map.get(details.get(i).get(j)));
+                }
+            }
+        }
+        
+        ArrayList<String>[] mergedMail = new ArrayList[n];
+        for(int i = 0; i < n; i++) {
+            mergedMail[i] = new ArrayList<>();
+        }
+        
+        for(Map.Entry<String, Integer> entry : map.entrySet()) {
+            String mail = entry.getKey();
+            int parentIndex = ds.findUltimateParent(entry.getValue());
+            mergedMail[parentIndex].add(mail);
+        }
+        
+        ArrayList<ArrayList<String>> ans = new ArrayList<>();
+        for(int i = 0; i < n; i++) {
+            if(mergedMail[i].size() == 0) {
+                continue;
+            }
+            Collections.sort(mergedMail[i]);
+            ArrayList<String> mergedAccount = new ArrayList<>();
+            mergedAccount.add(details.get(i).get(0));
+            for(String it : mergedMail[i]) {
+                mergedAccount.add(it);
+            }
+            
+            ans.add(mergedAccount);
+        }
+        return ans;
+    }
+}
