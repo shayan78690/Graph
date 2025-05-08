@@ -1,0 +1,54 @@
+class Solution {
+
+    class Tuple implements Comparable<Tuple> {
+        int r;
+        int c;
+        int t;
+
+        Tuple(int r, int c, int t) {
+            this.r = r;
+            this.c = c;
+            this.t = t;
+        }
+
+        public int compareTo(Tuple that) {
+            return this.t - that.t;
+        }
+    }
+
+    public int minTimeToReach(int[][] moveTime) {
+        int n = moveTime.length;
+        int m = moveTime[0].length;
+        boolean[][] visited = new boolean[n][m];
+
+        PriorityQueue<Tuple> pq = new PriorityQueue<>();
+        pq.offer(new Tuple(0, 0, 0));
+
+        int[] rowMoves = {-1, 0, 1, 0};
+        int[] colMoves = {0, 1, 0, -1};
+
+        while (!pq.isEmpty()) {
+            Tuple tuple = pq.poll();
+            int r = tuple.r, c = tuple.c, t = tuple.t;
+
+            if (visited[r][c]) continue; 
+            visited[r][c] = true;
+
+            if (r == n - 1 && c == m - 1) {
+                return t;
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int nRow = r + rowMoves[i];
+                int nCol = c + colMoves[i];
+
+                if (nRow >= 0 && nRow < n && nCol >= 0 && nCol < m && !visited[nRow][nCol]) {
+                    int waitTime = Math.max(t + 1, 1+ moveTime[nRow][nCol]);
+                    pq.offer(new Tuple(nRow, nCol, waitTime));
+                }
+            }
+        }
+
+        return -1; 
+    }
+}
